@@ -1,0 +1,26 @@
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+Class Player {
+  int move_list[10];
+  bool my_turn;
+ public:
+  bool is_turn(){ return my_turn;}
+};
+
+Class Game {
+  int whose_turn;
+  int board[3][3];
+ public:
+  void update_board(int i, int j, int player){ board[i][j] = player;}
+  Game(){ for(int i = 0; i<3;i++){ for(int j=0;j<3;j++) {board[i][j] = 0;}}}
+};
+
+int main(){
+  printf("Hello,World!");
+  return 0;
+}
