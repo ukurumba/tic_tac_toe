@@ -1,9 +1,11 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include  "../src/classes.cpp"
+#include "../src/play_game.cpp"
 
-TEST_CASE( "stupid/1=2", "Prove that one equals 2" )
+TEST_CASE( "checking classes" )
 {
-    int one = 2;
-    REQUIRE( one == 2 );
+    User user1;
+    REQUIRE( user1.is_turn() == false );
 }
 
