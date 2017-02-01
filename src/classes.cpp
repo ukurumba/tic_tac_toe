@@ -28,6 +28,12 @@ public:
 		if(turn == 1) turn = -1;
 		else if (turn == -1) turn = 1;
 	}
+	void view_board(){
+		for(int i=0;i<7;){
+			cout << board[i]<<board[i+1]<<board[i+2]<<endl;
+			i+=3;
+		}
+	}
 };
 
 class User {
@@ -67,17 +73,15 @@ vector<int> Game::actions(){
 }
 
 void User::make_move(Game& current_game){
+	current_game.view_board();
 	int move;
 	cin >> move;
-	// while (type(move) != int) {
-	// 	cerr << "Error: Please input an integer." << endl;
-	// 	cin >> move;
-	// }
+
 	while (move > 9 or move <1){
 		cin >> move;
 	cerr <<"Error: Invalid move location. Please select an integer between 1 and 9."<<endl;
 }
-	while (current_game.board[move] != 0){
+	while (current_game.board[move-1] != 0){
 		cerr << "Error: Player/AI has already played at selected position. Please select a valid move."<< endl;
 		cin >> move;
 	}
@@ -85,14 +89,14 @@ void User::make_move(Game& current_game){
 	current_game.change_turn();
 };
 
-void Ai::make_move(Game& g){
- //making copy of game to use in decision-making
+void Ai::make_move(Game& actual_game){
+	Game g(actual_game); //making copy of game to use in decision-making
 	int move = minimax(g);
 	if (move < 0 || move > 8){
 		cerr << "Error: AI move out of range selected in Ai make_move method." << endl;
 	}
-	g.board[move] = 1;
-	g.change_turn();
+	actual_game.board[move] = 1;
+	actual_game.change_turn();
 	cout << move+1<<endl;
 }
 
@@ -111,7 +115,7 @@ int Ai::minvalue(Game g){
 	if(g.is_game_over()) return g.who_won();
 	vector<int> possible_moves = g.actions();
 	int v = -1;
-		for(int a=0; a <possible_moves.size();a++){
+		for(int a=0; a < possible_moves.size();a++){
 			v = min(v,maxvalue(hypothetical_move(g,possible_moves[a])));
 		}
 	return v; 
@@ -130,7 +134,7 @@ int Ai::min(int i, int j){
 }
 
 int Ai::minimax(Game g){
-	int v = -1;
+	int v = -100;
 	int move=0;
 	int util_val = 0;
 	vector<int>  possible_moves = g.actions();
@@ -139,7 +143,6 @@ int Ai::minimax(Game g){
 	}
 	for (int i = 0; i < possible_moves.size();i++){
 		util_val = maxvalue(hypothetical_move(g,possible_moves[i]));
-		util_val = -2;
 		if (util_val > v){
 			move = possible_moves[i];
 			v = util_val;
@@ -154,30 +157,36 @@ int Ai::minimax(Game g){
 
 
 bool Game::is_game_over(){
-	for(int i=0; i<3;i++){
-if(board[i] == board[i+1] && board[i] ==board[i+2] && board[i]!= 0) return true;
-else if(board[i] == board[i+3] && board[i] == board[i+6] && board[i] != 0) return true;
-}
-if(board[0] == board[4] && board[0] == board[8] && board[0] != 0) return true;
-else if(board[2] == board[4] && board[2] == board[6] && board[2] != 0) return true;
+	for(int i=0; i<7;i+=3){
+		if(board[i] == board[i+1] && board[i] ==board[i+2] && board[i]!= 0) return true;
+	}
+	for(int i=0;i<3;i++){
+		if(board[i] == board[i+3] && board[i] == board[i+6] && board[i] != 0) return true;
+	}
+	if(board[0] == board[4] && board[0] == board[8] && board[0] != 0) return true;
+	else if(board[2] == board[4] && board[2] == board[6] && board[2] != 0) return true;
 
-for(int i=0;i<9;i++){
-	if (board[i] == 0)
-		return false;
+	for(int i=0;i<9;i++){
+		if (board[i] == 0)
+			return false;
+	}
+return true;
 }
-return true;}
 
 int Game::who_won(){
-		for(int i=0; i<3;i++){
-if(board[i] == board[i+1] && board[i] ==board[i+2] && board[i] == 1) return 1;
-else if(board[i] == board[i+3] && board[i] == board[i+6] && board[i] == 1) return 1;
-else if(board[i] == board[i+1] && board[i] ==board[i+2] && board[i] == -1) return -1;
-else if(board[i] == board[i+3] && board[i] == board[i+6] && board[i] == -1) return -1;
+	for(int i=0; i<7;i+=3){
+		if(board[i] == board[i+1] && board[i] ==board[i+2] && board[i] == 1) return 1;
+		else if(board[i] == board[i+1] && board[i] ==board[i+2] && board[i] == -1) return -1;
+	}
+	for(int i=0;i<3;i++){
+		if(board[i] == board[i+3] && board[i] == board[i+6] && board[i] == 1) return 1;
+		else if(board[i] == board[i+3] && board[i] == board[i+6] && board[i] == -1) return -1;
 }
-if(board[0] == board[4] && board[0] == board[8] && board[0] == 1) return 1;
-else if(board[2] == board[4] && board[2] == board[6] && board[2] == 1) return 1;
-if(board[0] == board[4] && board[0] == board[8] && board[0] == -1) return -1;
-else if(board[2] == board[4] && board[2] == board[6] && board[2] == -1) return -1;
+
+	if(board[0] == board[4] && board[0] == board[8] && board[0] == 1) return 1;
+	else if(board[2] == board[4] && board[2] == board[6] && board[2] == 1) return 1;
+	if(board[0] == board[4] && board[0] == board[8] && board[0] == -1) return -1;
+	else if(board[2] == board[4] && board[2] == board[6] && board[2] == -1) return -1;
 
 
 return 0;
@@ -207,15 +216,16 @@ Ai comp;
  
  int winner = new_game.who_won();
 
-  if (winner == 1)
+  if (winner == -1)
   {
 
   	cerr << "The Player Wins!"<<endl;
   	
   }
-  else if (winner == -1)
+  else if (winner == 1)
   	cerr << "The computer wins!" << endl;
 
   else if (winner ==0)
   	cerr << "It was a Draw!"<< endl;
 }
+

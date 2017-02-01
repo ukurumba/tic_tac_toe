@@ -56,24 +56,22 @@ TEST_CASE("testing who_won method")
 	REQUIRE(g5.who_won() == 0);
 }
 
-TEST_CASE("testing ai make_move method")
-{
-	Game g;
-	Ai comp;
-	for(int i =0; i<5; i++){
-	comp.make_move(g);
-	g.change_turn();
-	}
+// TEST_CASE("testing ai make_move method")
+// {
+// 	Game g;
+// 	Ai comp;
+// 	for(int i =0; i<5; i++){
+// 	comp.make_move(g);
+// 	g.change_turn();
+// 	// cout << "Current Board:";
+// 	// for(int j=0;j<9;j++) {cout<< g.board[j];}
+// 	// cout << endl;
+// 	}
 
-	vector<int> possible_moves = g.actions();
-	REQUIRE(possible_moves.size() == 4); //this testcase makes sure that the same gameboard 
-										// is updated each time and not different copies
-
-
-
-
-
-}
+// 	vector<int> possible_moves = g.actions();
+// 	REQUIRE(possible_moves.size() == 4); //this testcase makes sure that the same gameboard 
+// 										// is updated each time and not different copies
+// }
 
 TEST_CASE("Testing Actions method")
 {
@@ -89,8 +87,8 @@ for(int i=0;i<8;i++){
 }
 
 
-// TEST_CASE("playing game")
-// {
-// 	play_game();
-// 	REQUIRE(3==3);
-// }
+TEST_CASE("playing game")
+{
+	play_game();
+	REQUIRE(3==3);
+}
