@@ -10,6 +10,7 @@ using namespace std;
 
 
 class Game{
+	int turn;
 
 public:
 	int board[9];
@@ -17,11 +18,17 @@ public:
 		for (int i=0;i<9;i++){
 			board[i] = 0;
 		}
+		turn = -1; 
 	;} //didn't see a use for using a 2D array here. also easier i/o this way
 	bool is_game_over();
 	int who_won();
 	vector<int> actions();
-	};
+	int get_turn(){ return turn;}
+	void change_turn(){
+		if(turn == 1) turn = -1;
+		else if (turn == -1) turn = 1;
+	}
+};
 
 class User {
   int id;
@@ -35,12 +42,16 @@ class Ai{
 public:
 	void make_move(Game& g);
 	int minimax(Game g);
-	Game hypothetical_move(Game g, int a, int i){
+	Game hypothetical_move(Game g, int a){
+		int i = g.get_turn();
 		g.board[a] = i;
+		g.change_turn();
 		return g;
 	}
 	int maxvalue(Game g);
 	int minvalue(Game g);
+	int max(int i, int j);
+	int min(int i, int j);
 
 };
 
@@ -71,41 +82,69 @@ void User::make_move(Game& current_game){
 		cin >> move;
 	}
 	current_game.board[move - 1] = -1;
+	current_game.change_turn();
 };
 
-void Ai::make_move(Game& actual_game){
-	Game g(actual_game); //making copy of game to use in decision-making
+void Ai::make_move(Game& g){
+ //making copy of game to use in decision-making
 	int move = minimax(g);
 	if (move < 0 || move > 8){
 		cerr << "Error: AI move out of range selected in Ai make_move method." << endl;
 	}
-	actual_game.board[move] = 1;
-	cout << move;
+	g.board[move] = 1;
+	g.change_turn();
+	cout << move+1<<endl;
 }
 
 int Ai::maxvalue(Game g){
-	return -1; //mocked up
+	if(g.is_game_over()) return g.who_won();
+		vector<int> possible_moves = g.actions();
+		int v = -1;
+		for(int a=0; a <possible_moves.size();a++){
+			v = max(v,minvalue(hypothetical_move(g,possible_moves[a])));
+		}
+
+	return v; 
 }
 
-int Ai::minvalue(Game g){//mocked up
-	return -1;
+int Ai::minvalue(Game g){
+	if(g.is_game_over()) return g.who_won();
+	vector<int> possible_moves = g.actions();
+	int v = -1;
+		for(int a=0; a <possible_moves.size();a++){
+			v = min(v,maxvalue(hypothetical_move(g,possible_moves[a])));
+		}
+	return v; 
+}
+
+int Ai::max(int i, int j){
+	if(i>j) return i;
+	else if (i<j) return j;
+	else return i;
+}
+
+int Ai::min(int i, int j){
+	if(i>j) return j;
+	else if (j>i) return i;
+	else return j;
 }
 
 int Ai::minimax(Game g){
 	int v = -1;
-	int move, util_val = 0;
-	// vector<int>  possible_moves= g.actions();
-	// if (possible_moves.size() == 0){
-	// 	cerr << "Error: No possible moves for AI but game has not been terminated." <<endl;
-	// }
-	// for (int i = 0; i < possible_moves.size();i++){
-	// 	// util_val = maxvalue(hypothetical_move(g,possible_moves[i], 1));
-	// 	util_val = -2;
-	// 	if (util_val > v){
-	// 		move = possible_moves[i];
-	// 		v = util_val;
-	// 	}
-	// }
+	int move=0;
+	int util_val = 0;
+	vector<int>  possible_moves = g.actions();
+	if (possible_moves.size() == 0){
+		cerr << "Error: No possible moves for AI but game has not been terminated." <<endl;
+	}
+	for (int i = 0; i < possible_moves.size();i++){
+		util_val = maxvalue(hypothetical_move(g,possible_moves[i]));
+		util_val = -2;
+		if (util_val > v){
+			move = possible_moves[i];
+			v = util_val;
+		}
+	}
 	return move; 
 }
 

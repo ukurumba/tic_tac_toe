@@ -12,9 +12,9 @@
 // }
 
 
-TEST_CASE("testing game_over_function")
+TEST_CASE("testing game_over_method")
 {
-	Game g1,g2,g3, g4, g5;
+	Game g1,g2,g3, g4, g5,g6;
 	for(int i=0;i<3;i++)
 		g1.board[i] = 1;
 	g2.board[0] =1;
@@ -24,12 +24,14 @@ TEST_CASE("testing game_over_function")
 	g3.board[5] = 1;
 	g3.board[8] = 1;
 	g4.board[0]=g4.board[4] = g4.board[8] = 1;
+	for(int i =0;i<9;i++) g6.board[i] = 3;
 
 	REQUIRE(g1.is_game_over() == true);
 	REQUIRE(g2.is_game_over() == true);
 	REQUIRE(g3.is_game_over() == true);
 	REQUIRE(g4.is_game_over() == true);
 	REQUIRE(g5.is_game_over() == false);
+	REQUIRE(g6.is_game_over() == true);
 }
 
 TEST_CASE("testing who_won method")
@@ -58,16 +60,34 @@ TEST_CASE("testing ai make_move method")
 {
 	Game g;
 	Ai comp;
+	for(int i =0; i<5; i++){
 	comp.make_move(g);
-	bool move_made = false;
-	for (int i=0;i<9;i++){
-		if (g.board[i] != 0)
-			move_made = true;
+	g.change_turn();
 	}
 
-	REQUIRE(move_made == true );
+	vector<int> possible_moves = g.actions();
+	REQUIRE(possible_moves.size() == 4); //this testcase makes sure that the same gameboard 
+										// is updated each time and not different copies
+
+
+
+
 
 }
+
+TEST_CASE("Testing Actions method")
+{
+	Game g,g2;
+	vector<int> possible_moves = g.actions();
+for(int i=0;i<8;i++){
+	g2.board[i] = 1;
+}
+
+	vector<int> possible_moves2 = g2.actions();
+	REQUIRE(possible_moves[8] == 8);
+	REQUIRE(possible_moves2.size() == 1);
+}
+
 
 // TEST_CASE("playing game")
 // {
