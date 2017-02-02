@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <stdlib.h>
+#include <iterator>
 
 using namespace std;
 
@@ -78,8 +79,9 @@ void User::make_move(Game& current_game){
 	cin >> move;
 
 	while (move > 9 or move <1){
-		cin >> move;
+		
 	cerr <<"Error: Invalid move location. Please select an integer between 1 and 9."<<endl;
+	cin >> move;
 }
 	while (current_game.board[move-1] != 0){
 		cerr << "Error: Player/AI has already played at selected position. Please select a valid move."<< endl;
@@ -100,25 +102,31 @@ void Ai::make_move(Game& actual_game){
 	cout << move+1<<endl;
 }
 
-int Ai::maxvalue(Game g){
-	if(g.is_game_over()) return g.who_won();
+int Ai::maxvalue(Game g){ //returns maximum utility value possible from the given state g
+	if(g.is_game_over()) {return g.who_won(); }
+	else{
 		vector<int> possible_moves = g.actions();
-		int v = -1;
+		int v = -5;
 		for(int a=0; a <possible_moves.size();a++){
-			v = max(v,minvalue(hypothetical_move(g,possible_moves[a])));
+			Game g2 = hypothetical_move(g,possible_moves[a]);
+			v = max(v,minvalue(g2)); 
 		}
-
+	
 	return v; 
+}
 }
 
 int Ai::minvalue(Game g){
 	if(g.is_game_over()) return g.who_won();
+	else{
 	vector<int> possible_moves = g.actions();
-	int v = -1;
+	int v = 5;
 		for(int a=0; a < possible_moves.size();a++){
 			v = min(v,maxvalue(hypothetical_move(g,possible_moves[a])));
 		}
+
 	return v; 
+}
 }
 
 int Ai::max(int i, int j){
@@ -142,7 +150,7 @@ int Ai::minimax(Game g){
 		cerr << "Error: No possible moves for AI but game has not been terminated." <<endl;
 	}
 	for (int i = 0; i < possible_moves.size();i++){
-		util_val = maxvalue(hypothetical_move(g,possible_moves[i]));
+		util_val = minvalue(hypothetical_move(g,possible_moves[i]));
 		if (util_val > v){
 			move = possible_moves[i];
 			v = util_val;

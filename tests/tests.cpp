@@ -73,6 +73,15 @@ TEST_CASE("testing who_won method")
 // 										// is updated each time and not different copies
 // }
 
+TEST_CASE("Testing Hypothetical Move method")
+{
+	Ai comp;
+	Game g,g2;
+	g2 = comp.hypothetical_move(g,2);
+	REQUIRE(g2.board[2] == -1);
+	REQUIRE(g2.get_turn() == 1);
+}
+
 TEST_CASE("Testing Actions method")
 {
 	Game g,g2;
@@ -86,9 +95,33 @@ for(int i=0;i<8;i++){
 	REQUIRE(possible_moves2.size() == 1);
 }
 
+TEST_CASE("Testing max/min methods")
+{
+	Ai comp;
+	REQUIRE(comp.max(7,3) == 7);
+	REQUIRE(comp.min(7,3) == 3);
+}
 
 TEST_CASE("playing game")
 {
 	play_game();
 	REQUIRE(3==3);
+}
+
+TEST_CASE("Testing maxvalue/minvalue methods")
+{
+	Ai comp;
+	Game g,g2,g3;
+	g.board[0] = g.board[4] = 1;
+	g.change_turn();
+	g2.board[0] = g2.board[2]=g2.board[3]=g2.board[7]=g2.board[8]=1;
+	g2.board[1]=g2.board[4]=g2.board[5]=g2.board[6]=-1;
+	g3.board[0] =g3.board[4] = -1;
+	g3.board[8] = 1;
+	g3.change_turn();
+	REQUIRE(comp.maxvalue(g2) == 0);
+	REQUIRE(comp.minvalue(g2) == 0);
+	REQUIRE(comp.maxvalue(g)==1);
+	REQUIRE(comp.maxvalue(g3) == 0);
+
 }
