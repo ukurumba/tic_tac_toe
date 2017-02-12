@@ -8,59 +8,37 @@
 
 using namespace std;
 
+#include "classes.hpp"
 
-
-class Game{
-	int turn;
-
-public:
-	int board[9];
-	Game(){
-		for (int i=0;i<9;i++){
-			board[i] = 0;
-		}
-		turn = -1; 
-	;} //didn't see a use for using a 2D array here. also easier i/o this way
-	bool is_game_over();
-	int who_won();
-	vector<int> actions();
-	int get_turn(){ return turn;}
-	void change_turn(){
-		if(turn == 1) turn = -1;
-		else if (turn == -1) turn = 1;
+Game::Game(){ //initializing game board
+	for (int i=0;i<9;i++){
+		board[i] = 0;
 	}
-	void view_board(){
-		for(int i=0;i<7;){
-			cout << board[i]<<board[i+1]<<board[i+2]<<endl;
-			i+=3;
-		}
-	}
-};
+	turn = -1; }
 
-class User {
-  int id;
-  bool turn;
-public:
-  User(){turn = false;}
-  void make_move(Game& current_game);
-};
+int Game::get_turn(){return turn;}
 
-class Ai{
-public:
-	void make_move(Game& g);
-	int minimax(Game g);
-	Game hypothetical_move(Game g, int a){
-		int i = g.get_turn();
-		g.board[a] = i;
-		g.change_turn();
-		return g;
-	}
-	int maxvalue(Game g);
-	int minvalue(Game g);
-	int max(int i, int j);
-	int min(int i, int j);
+void Game::change_turn()
+{
+	if(turn == 1) turn = -1;
+	else if (turn == -1) turn = 1;
+}
 
-};
+void Game::view_board(){
+for(int i=0;i<7;){
+	cout << board[i]<<board[i+1]<<board[i+2]<<endl;
+	i+=3;
+}
+}
+
+
+
+Game Ai::hypothetical_move(Game g, int a){ //the transition model that returns the result of an action on a given state
+	int i = g.get_turn();
+	g.board[a] = i;
+	g.change_turn();
+	return g;
+}
 
 vector<int> Game::actions(){
 	vector<int> possible_actions; 
@@ -73,23 +51,56 @@ vector<int> Game::actions(){
 	return possible_actions;
 }
 
+User::User(){
+	id = -1;
+}
+
 void User::make_move(Game& current_game){
 	current_game.view_board();
 	int move;
 	cin >> move;
 
-	while (move > 9 or move <1){
-		
-	cerr <<"Error: Invalid move location. Please select an integer between 1 and 9."<<endl;
-	cin >> move;
-}
-	while (current_game.board[move-1] != 0){
-		cerr << "Error: Player/AI has already played at selected position. Please select a valid move."<< endl;
-		cin >> move;
+	while (current_game.board[move-1] != 0 || move > 9 || move < 1){
+		if(move > 9 or move < 1){
+			cerr <<"Error: Invalid move location. Please select an integer between 1 and 9."<<endl;
+			cin.clear();
+			cin.ignore(10000,'\n');
+			cin >> move;
+		}
+		else if (current_game.board[move-1] != 0){
+			cerr << "Error: Player/AI has already played at selected position. Please select a valid move."<< endl;
+			cin.clear();
+			cin.ignore(10000,'\n');
+			cin >> move;
+		}
 	}
+
 	current_game.board[move - 1] = -1;
 	current_game.change_turn();
 };
+
+void User::make_9_board_move(NBoard& n){
+	int board, position;
+	cin >> board >> position;
+	while(n.is_position_taken(board,position) || !n.is_valid_move(board,position)){
+		if(n.is_position_taken(board,position)){
+		cerr << "Error: Player/AI has already played at selected position. Please select a valid move." << endl;
+		cin.clear();
+		cin.ignore(10000,'\n');
+		cin >> board >> position;
+		}
+		else if (!n.is_valid_move(board,position)){
+		cerr << "That move was not valid, either because the entered values were out of range or because that board cannot be played on. Please enter a correct pair of numbers (which board:      which position:    )" << endl;
+		cin.clear();
+		cin.ignore(10000,'\n');
+		cin >> board >> position;
+		}
+	}
+	n.change_most_recently_played_board(board-1); 
+	n.change_board(board-1, position-1,-1);
+	n.change_turn();
+	n.change_allowed_ttt_board(position - 1); 
+}
 
 void Ai::make_move(Game& actual_game){
 	Game g(actual_game); //making copy of game to use in decision-making
@@ -100,6 +111,27 @@ void Ai::make_move(Game& actual_game){
 	actual_game.board[move] = 1;
 	actual_game.change_turn();
 	cout << move+1<<endl;
+}
+
+void Ai::make_9_board_move(NBoard& actual_game){
+	NBoard b(actual_game); //making copy to use in decision-making
+	pair<int,int> move = minimax_h(b);
+	actual_game.change_most_recently_played_board(actual_game.get_allowed_ttt_board());
+	actual_game.change_board(move.first, move.second, 1);
+	actual_game.change_allowed_ttt_board(move.second);
+}
+
+pair<int,int> Ai::minimax_h(NBoard b){ //being by 
+	vector<int> possible_moves = b.get_board()[b.get_allowed_ttt_board()].actions(); //returns possible actions for a given 9 board.
+
+	return make_pair(2,3);
+}
+
+NBoard Ai::hypothetical_9_board_move(NBoard b, int move, int value){
+	b.change_board(b.get_allowed_ttt_board(),move,value);
+	b.change_most_recently_played_board(b.get_allowed_ttt_board());
+	b.change_allowed_ttt_board(move);
+	return b;
 }
 
 int Ai::maxvalue(Game g){ //returns maximum utility value possible from the given state g
@@ -200,7 +232,27 @@ int Game::who_won(){
 return 0;
 }
 
-// int who_is_first(){int i = rand(); if (floor(rand/2) == rand/2) return 1; else return 2;}
+pair<bool,bool> Game::two_in_a_row_exists(){ 
+
+/*essentially this method checks to see if any row/column/diagonal sums to 2 indicating two 1's and a 0 or sums to -2 indicating
+two -1's and a 0. It then returns a pair of booleans corresponding to the truth value of those two statements. */
+
+	pair<bool,bool> two_in_a_row = make_pair(false,false);
+	for(int i=0; i<7;i+=3){
+		if(board[i] + board[i+1] + board[i+2] == 2) two_in_a_row.first = true;
+		if(board[i] + board[i+1] + board[i+2] == -2) two_in_a_row.second=true;
+	}
+	for(int i=0;i<3;i++){
+		if(board[i] + board[i+3] + board[i+6] == 2) two_in_a_row.first = true;
+		if(board[i] + board[i+3] + board[i+6] == -2) two_in_a_row.second=true;
+	}
+
+	if(board[0] + board[4] + board[8] == 2) two_in_a_row.first = true;
+	if(board[0] + board[4] + board[8] == -2) two_in_a_row.second=true;
+	if(board[2] + board[4] + board[6] == 2) two_in_a_row.first = true;
+	if(board[2] + board[4] + board[6] == -2) two_in_a_row.second=true;
+	return two_in_a_row;
+}
 
 
 void play_game(){
@@ -236,4 +288,84 @@ Ai comp;
   else if (winner ==0)
   	cerr << "It was a Draw!"<< endl;
 }
+
+
+NBoard::NBoard(){
+	for(int i=0;i<9;i++){
+		Game g;
+		add_board(g);
+	}
+	turn = -1;
+	allowed_ttt_board = -100;
+	most_recently_played_board = -100;
+}
+vector<Game> NBoard::get_board(){return board;}
+void NBoard::change_board(int which_board, int which_position, int what_value){board[which_board].board[which_position] = what_value;}
+void NBoard::add_board(Game g){board.push_back(g);}
+	
+void NBoard::change_turn(){
+	if (turn == 1) turn = -1;
+	else if (turn == -1) turn = 1;
+	for(int i=0;i<9;i++) board[i].change_turn();
+}
+
+bool NBoard::is_position_taken(int ttt_board, int position){
+	if(board[ttt_board].board[position] != 0) return true;
+	else return false; 
+}
+
+bool NBoard::is_valid_move(int ttt_board, int position){
+	if(allowed_ttt_board != ttt_board && allowed_ttt_board != -100) return false; //return false if not new board or not correct board. 
+	else if (position > 9 || position < 1) return false;
+	else return true; 
+}
+
+void NBoard::change_allowed_ttt_board(int ttt_board){ allowed_ttt_board = ttt_board;}
+
+int NBoard::get_allowed_ttt_board(){ return allowed_ttt_board;}
+
+bool NBoard::is_game_over(){
+	int ttt_board = most_recently_played_board;
+	if(ttt_board == -100) return false; //newly intialized boards cannot be over yet
+	else return board[ttt_board].is_game_over();
+}
+
+bool NBoard::who_won(){
+	int ttt_board = most_recently_played_board;
+	return board[ttt_board].who_won();
+
+}
+
+int NBoard::get_most_recently_played_board(){return most_recently_played_board;}
+void NBoard::change_most_recently_played_board(int board){ most_recently_played_board = board;}
+
+int NBoard::eval_heuristic_utility_value(){
+	/* This heuristic evaluates based on the number of ttt_boards that have a winning move if moved to. For example, if the top
+	left board has 2 X's in a row, then the top left position is blocked off for O on all 8 of the other boards. The count of all 
+	open top left positions for the other boards is taken and summed with such a count for every other position (top middle, top right, etc.).
+	From this is subtracted the analogous total count for 2 O's in a row. This is then returned as the utility value of 
+	the board for X. */
+	int util_value = 0;
+	for(int i=0;i<9;i++){ //for every tic_tac_toe board i: 
+		pair<bool,bool> two_in_a_row=board[i].two_in_a_row_exists(); //returns pair of booleans, first corresponding to if two_in_a_row exists for AI, second for player
+		if(two_in_a_row.first || two_in_a_row.second){ //if any two in a row exists in board i:
+			int count = 0; 
+			for(int j=0;j<9;j++){
+				if (board[j].board[i] == 0){
+					count += 1;
+				}
+
+			}
+			if(two_in_a_row.first&& !two_in_a_row.second){ //if two in a row exists only for AI:
+				util_value += count;
+			}
+			else if(!two_in_a_row.first && two_in_a_row.second){ //if two in a row exists only for player:
+				util_value -= count;
+			}//otherwise utility value of two in a rows cancels out 
+		}
+
+	}
+	return util_value;
+}
+
 

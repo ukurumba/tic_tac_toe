@@ -103,11 +103,11 @@ TEST_CASE("Testing max/min methods")
 	REQUIRE(comp.min(7,3) == 3);
 }
 
-// TEST_CASE("playing game")
-// {
-// 	play_game();
-// 	REQUIRE(3==3);
-// }
+TEST_CASE("playing game")
+{
+	play_game();
+	REQUIRE(3==3);
+}
 
 TEST_CASE("Testing maxvalue/minvalue methods")
 {
@@ -142,53 +142,3 @@ TEST_CASE("Testing 9_Board Implementation")
 
 // }
 
-TEST_CASE("Testing AI 9_Board Make Move Method")
-{
-	Ai comp;
-	NBoard b;
-	comp.make_9_board_move(b);
-	bool bool_val = false;
-	for(int i=0;i<9;i++){
-		for(int j=0;j<9;j++){
-			if (b.get_board()[i].board[j] != 0)
-				bool_val = true;
-		}
-	}
-	REQUIRE(bool_val == true);
-
-}
-
-TEST_CASE("Testing AI NBoard Hypothetical Move Method"){
-	Ai comp;
-	NBoard b;
-	b.change_allowed_ttt_board(2);
-	NBoard b2 = comp.hypothetical_9_board_move(b,3,1);
-	REQUIRE(b2.get_board()[2].board[3] == 1);
-	REQUIRE(b2.get_allowed_ttt_board() == 3);
-}
-
-TEST_CASE("Testing Terminal Test and Who_Won 9 Board Methods")
-{
-	Ai comp;
-	NBoard b,b2;
-	for(int i=0;i<2;i++){
-		b.change_board(0,i,1);
-	}
-	b.change_allowed_ttt_board(0);
-	b2 = comp.hypothetical_9_board_move(b,2,1);
-	REQUIRE(b.is_game_over() == false);
-	REQUIRE(b2.is_game_over() == true);
-	REQUIRE(b2.who_won() == 1);
-}
-
-TEST_CASE("Testing eval_utility_value heuristic method")
-{
-	NBoard b;
-	Ai comp;
-	for(int i=0;i<3;i++){
-		for(int j=0;j<2;j++){
-			b.change_board(i,j,1);
-		}
-	}
-	REQUIRE(b.eval_heuristic_utility_value() == 21);
-}
