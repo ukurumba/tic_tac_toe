@@ -35,7 +35,7 @@ class NBoard {
 public:
 	NBoard();
 	bool is_game_over();
-	bool who_won();
+	int who_won();
 	vector<Game> get_board();
 	void change_board(int which_board, int which_position, int what_value);
 	void add_board(Game g);
@@ -46,7 +46,7 @@ public:
 	void change_most_recently_played_board(int ttt_board);
 	int get_most_recently_played_board();
 	int get_allowed_ttt_board();
-	vector<int> allowed_9_board_moves();
+	vector<int> actions();
 	int eval_heuristic_utility_value();
 };
 
@@ -68,6 +68,8 @@ public:
 	NBoard hypothetical_9_board_move(NBoard b, int which_position, int what_value);
 	int maxvalue(Game g);
 	int minvalue(Game g);
+	int maxvalue_9_board(NBoard b, int counter);
+	int minvalue_9_board(NBoard b, int counter); 
 	int max(int i, int j);
 	int min(int i, int j);
 };

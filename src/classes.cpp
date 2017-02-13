@@ -119,12 +119,56 @@ void Ai::make_9_board_move(NBoard& actual_game){
 	actual_game.change_most_recently_played_board(actual_game.get_allowed_ttt_board());
 	actual_game.change_board(move.first, move.second, 1);
 	actual_game.change_allowed_ttt_board(move.second);
+	cout << "Board: " << move.first << "Position: " << move.second << endl; 
 }
 
-pair<int,int> Ai::minimax_h(NBoard b){ //being by 
-	vector<int> possible_moves = b.get_board()[b.get_allowed_ttt_board()].actions(); //returns possible actions for a given 9 board.
+pair<int,int> Ai::minimax_h(NBoard b){ 
+	if (b.get_allowed_ttt_board() == -100) b.change_allowed_ttt_board(0); 
+	vector<int> possible_moves = b.actions(); //returns possible actions for a given 9 board.
+	int v = -100;
+	int move=0;
+	int util_val = 0;
+	int counter = 0;
+	if (possible_moves.size() == 0){
+		cerr << "Error: No possible moves for AI but game has not been terminated." <<endl;
+	}
+	for (int i = 0; i < possible_moves.size();i++){
+		util_val = minvalue_9_board(hypothetical_9_board_move(b,possible_moves[i],1),counter);
+		if (util_val > v){
+			move = possible_moves[i];
+			v = util_val;
+		}
+	}
 
-	return make_pair(2,3);
+	return make_pair(b.get_allowed_ttt_board(), move); 
+}
+
+int Ai::minvalue_9_board(NBoard b, int counter){
+	counter += 1;
+	if (b.is_game_over()) return b.who_won();
+	else if(counter > 5){ return b.eval_heuristic_utility_value();}
+	else{
+		vector<int> possible_moves = b.actions();
+		int v = 1000;
+		for(int a = 0; a < possible_moves.size();a++){
+			v = min(v,maxvalue_9_board(hypothetical_9_board_move(b,possible_moves[a],-1),counter));
+		}
+		return v;
+	}
+}
+
+int Ai::maxvalue_9_board(NBoard b, int counter){
+	counter += 1; 
+	if (b.is_game_over()) return b.who_won();
+	else if (counter > 5) { return b.eval_heuristic_utility_value();}
+	else{
+		vector<int> possible_moves = b.actions();
+		int v = -1000;
+		for(int a = 0; a < possible_moves.size(); a++){
+			v = max(v,minvalue_9_board(hypothetical_9_board_move(b,possible_moves[a],1),counter));
+		}
+		return v;
+	}
 }
 
 NBoard Ai::hypothetical_9_board_move(NBoard b, int move, int value){
@@ -213,7 +257,8 @@ bool Game::is_game_over(){
 return true;
 }
 
-int Game::who_won(){
+int Game::who_won()
+{
 	for(int i=0; i<7;i+=3){
 		if(board[i] == board[i+1] && board[i] ==board[i+2] && board[i] == 1) return 1;
 		else if(board[i] == board[i+1] && board[i] ==board[i+2] && board[i] == -1) return -1;
@@ -221,15 +266,13 @@ int Game::who_won(){
 	for(int i=0;i<3;i++){
 		if(board[i] == board[i+3] && board[i] == board[i+6] && board[i] == 1) return 1;
 		else if(board[i] == board[i+3] && board[i] == board[i+6] && board[i] == -1) return -1;
-}
+	}
 
 	if(board[0] == board[4] && board[0] == board[8] && board[0] == 1) return 1;
 	else if(board[2] == board[4] && board[2] == board[6] && board[2] == 1) return 1;
 	if(board[0] == board[4] && board[0] == board[8] && board[0] == -1) return -1;
 	else if(board[2] == board[4] && board[2] == board[6] && board[2] == -1) return -1;
-
-
-return 0;
+	return 0;
 }
 
 pair<bool,bool> Game::two_in_a_row_exists(){ 
@@ -330,9 +373,9 @@ bool NBoard::is_game_over(){
 	else return board[ttt_board].is_game_over();
 }
 
-bool NBoard::who_won(){
+int NBoard::who_won(){
 	int ttt_board = most_recently_played_board;
-	return board[ttt_board].who_won();
+	return 100 * board[ttt_board].who_won(); //scale by 100 so that a terminal state is more valuable than any heuristic state
 
 }
 
@@ -354,7 +397,6 @@ int NBoard::eval_heuristic_utility_value(){
 				if (board[j].board[i] == 0){
 					count += 1;
 				}
-
 			}
 			if(two_in_a_row.first&& !two_in_a_row.second){ //if two in a row exists only for AI:
 				util_value += count;
@@ -363,9 +405,11 @@ int NBoard::eval_heuristic_utility_value(){
 				util_value -= count;
 			}//otherwise utility value of two in a rows cancels out 
 		}
-
 	}
 	return util_value;
 }
 
-
+vector<int> NBoard::actions(){
+	int ttt_board = allowed_ttt_board;
+	return board[ttt_board].actions();
+}

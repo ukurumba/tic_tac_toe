@@ -178,7 +178,7 @@ TEST_CASE("Testing Terminal Test and Who_Won 9 Board Methods")
 	b2 = comp.hypothetical_9_board_move(b,2,1);
 	REQUIRE(b.is_game_over() == false);
 	REQUIRE(b2.is_game_over() == true);
-	REQUIRE(b2.who_won() == 1);
+	REQUIRE(b2.who_won() == 100);
 }
 
 TEST_CASE("Testing eval_utility_value heuristic method")
