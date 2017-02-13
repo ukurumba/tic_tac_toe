@@ -82,14 +82,15 @@ void User::make_move(Game& current_game){
 void User::make_9_board_move(NBoard& n){
 	int board, position;
 	cin >> board >> position;
-	while(n.is_position_taken(board,position) || !n.is_valid_move(board,position)){
-		if(n.is_position_taken(board,position)){
+	cout << "Allowed board: " << n.get_allowed_ttt_board() << endl; 
+	while(n.is_position_taken(board-1,position-1) || !n.is_valid_move(board-1,position-1)){
+		if(n.is_position_taken(board-1,position-1)){
 		cerr << "Error: Player/AI has already played at selected position. Please select a valid move." << endl;
 		cin.clear();
 		cin.ignore(10000,'\n');
 		cin >> board >> position;
 		}
-		else if (!n.is_valid_move(board,position)){
+		else if (!n.is_valid_move(board-1,position-1)){
 		cerr << "That move was not valid, either because the entered values were out of range or because that board cannot be played on. Please enter a correct pair of numbers (which board:      which position:    )" << endl;
 		cin.clear();
 		cin.ignore(10000,'\n');
@@ -119,7 +120,7 @@ void Ai::make_9_board_move(NBoard& actual_game){
 	actual_game.change_most_recently_played_board(actual_game.get_allowed_ttt_board());
 	actual_game.change_board(move.first, move.second, 1);
 	actual_game.change_allowed_ttt_board(move.second);
-	cout << "Board: " << move.first << "Position: " << move.second << endl; 
+	cout << "Board: " << move.first + 1 << "Position: " << move.second + 1 << endl; 
 }
 
 pair<int,int> Ai::minimax_h(NBoard b){ 
@@ -272,7 +273,13 @@ int Game::who_won()
 	else if(board[2] == board[4] && board[2] == board[6] && board[2] == 1) return 1;
 	if(board[0] == board[4] && board[0] == board[8] && board[0] == -1) return -1;
 	else if(board[2] == board[4] && board[2] == board[6] && board[2] == -1) return -1;
-	return 0;
+	bool all_squares_covered = true; 
+	for(int i=0;i<9;i++){
+		if(board[i] == 0)
+			all_squares_covered = false;
+	}
+	if (all_squares_covered) return 0; //a draw
+	else if (!all_squares_covered) return -5000; //a check used in 9_board is_game_over method
 }
 
 pair<bool,bool> Game::two_in_a_row_exists(){ 
@@ -301,35 +308,60 @@ two -1's and a 0. It then returns a pair of booleans corresponding to the truth 
 void play_game(){
 
   User user1;
-Ai comp;
-  Game new_game;
- // int first_mover = who_is_first();
-  while (! new_game.is_game_over()){
-    // if (first_mover == 1){
-      user1.make_move(new_game);
-      if(new_game.is_game_over())
-      	break;
-      comp.make_move(new_game);
-          // }
-    // else {
-    //   comp.make_move(new_game);
-    //   user1.make_move(new_game);
-    // }
-  }
- 
- int winner = new_game.who_won();
+  cerr << "Please input 0 for tic_tac_toe or 9 for 9 board tic tac toe." << endl; 
+  int input;
+  cin >> input;
+  if (input == 0){
+	Ai comp;
+	  Game new_game;
+	 // int first_mover = who_is_first();
+	  while (! new_game.is_game_over()){
+	    // if (first_mover == 1){
+	      user1.make_move(new_game);
+	      if(new_game.is_game_over())
+	      	break;
+	      comp.make_move(new_game);
+	          // }
+	    // else {
+	    //   comp.make_move(new_game);
+	    //   user1.make_move(new_game);
+	    // }
+	  }
+	 
+	 int winner = new_game.who_won();
 
-  if (winner == -1)
-  {
+	  if (winner == -1)
+	  {
 
-  	cerr << "The Player Wins!"<<endl;
-  	
-  }
-  else if (winner == 1)
-  	cerr << "The computer wins!" << endl;
+	  	cerr << "The Player Wins!"<<endl;
+	  	
+	  }
+	  else if (winner == 1)
+	  	cerr << "The computer wins!" << endl;
 
-  else if (winner ==0)
-  	cerr << "It was a Draw!"<< endl;
+	  else if (winner ==0)
+	  	cerr << "It was a Draw!"<< endl;
+	}
+
+	else if (input == 9){
+		User user1;
+		Ai comp;
+		NBoard b;
+		while (! b.is_game_over()){
+			user1.make_9_board_move(b);
+			if(b.is_game_over())
+				break;
+			comp.make_9_board_move(b);
+		}
+
+		int winner = b.who_won();
+		if (winner == -100)
+			cerr << "The Player Wins!" << endl;
+		else if (winner == 100)
+			cerr << "The computer Wins!" << endl;
+		else if (winner == 0)
+			cerr << "It was a Draw!" << endl; 
+	}
 }
 
 
@@ -359,7 +391,7 @@ bool NBoard::is_position_taken(int ttt_board, int position){
 
 bool NBoard::is_valid_move(int ttt_board, int position){
 	if(allowed_ttt_board != ttt_board && allowed_ttt_board != -100) return false; //return false if not new board or not correct board. 
-	else if (position > 9 || position < 1) return false;
+	else if (position > 8 || position < 0) return false;
 	else return true; 
 }
 
@@ -370,7 +402,20 @@ int NBoard::get_allowed_ttt_board(){ return allowed_ttt_board;}
 bool NBoard::is_game_over(){
 	int ttt_board = most_recently_played_board;
 	if(ttt_board == -100) return false; //newly intialized boards cannot be over yet
-	else return board[ttt_board].is_game_over();
+	else {
+		bool win_or_loss_or_tie = board[ttt_board].is_game_over(); //checking to see if win/loss/draw on previously played board
+		if (win_or_loss_or_tie){
+			int winner = who_won(); 
+			if (winner == 0){ //if previous board was a draw then must check if every single board was a draw
+				bool all_boards_are_draw = true;
+				for(int i=0;i<9;i++){ //checking all 9 tic_tac_toe boards
+					if (board[i].who_won() == -5000) //Game who_won method returns -5000 if nobody has won and not every space is covered.
+						return false;
+				}
+			}
+			else return true; 
+		}
+	}
 }
 
 int NBoard::who_won(){

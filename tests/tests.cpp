@@ -103,11 +103,11 @@ TEST_CASE("Testing max/min methods")
 	REQUIRE(comp.min(7,3) == 3);
 }
 
-// TEST_CASE("playing game")
-// {
-// 	play_game();
-// 	REQUIRE(3==3);
-// }
+TEST_CASE("playing game")
+{
+	play_game();
+	REQUIRE(3==3);
+}
 
 TEST_CASE("Testing maxvalue/minvalue methods")
 {
