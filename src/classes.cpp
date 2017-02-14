@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <iterator>
+#include <ctime>
 
 using namespace std;
 
@@ -311,16 +312,26 @@ void play_game(){
   cerr << "Please input 0 for tic_tac_toe or 9 for 9 board tic tac toe." << endl; 
   int input;
   cin >> input;
+
+	//Timing AI move length
+  	clock_t start;
+	double time_elapsed;
+
   if (input == 0){
 	Ai comp;
 	  Game new_game;
+
 	 // int first_mover = who_is_first();
 	  while (! new_game.is_game_over()){
 	    // if (first_mover == 1){
 	      user1.make_move(new_game);
 	      if(new_game.is_game_over())
 	      	break;
+
+	      start = clock();
 	      comp.make_move(new_game);
+	      time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
+	      cerr << "The AI took " << time_elapsed << "s to make a move" << endl;
 	          // }
 	    // else {
 	    //   comp.make_move(new_game);
@@ -351,7 +362,13 @@ void play_game(){
 			user1.make_9_board_move(b);
 			if(b.is_game_over())
 				break;
+
+			start = clock();
+			
 			comp.make_9_board_move(b);
+
+			time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
+	      	cerr << "The AI took " << time_elapsed << "s to make a move" << endl;
 		}
 
 		int winner = b.who_won();
