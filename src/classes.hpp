@@ -68,8 +68,8 @@ public:
 	NBoard hypothetical_9_board_move(NBoard b, int which_position, int what_value);
 	int maxvalue(Game g);
 	int minvalue(Game g);
-	int maxvalue_9_board(NBoard b, int counter);
-	int minvalue_9_board(NBoard b, int counter); 
+	int maxvalue_9_board(NBoard b, int counter, int alpha, int beta);
+	int minvalue_9_board(NBoard b, int counter, int alpha, int beta); 
 	int max(int i, int j);
 	int min(int i, int j);
 };
