@@ -135,7 +135,7 @@ pair<int,int> Ai::minimax_h(NBoard b){
 		cerr << "Error: No possible moves for AI but game has not been terminated." <<endl;
 	}
 	for (int i = 0; i < possible_moves.size();i++){
-		util_val = minvalue_9_board(hypothetical_9_board_move(b,possible_moves[i],1),counter);
+		util_val = minvalue_9_board(hypothetical_9_board_move(b,possible_moves[i],1),counter, -10000, 10000);
 		if (util_val > v){
 			move = possible_moves[i];
 			v = util_val;
@@ -145,7 +145,8 @@ pair<int,int> Ai::minimax_h(NBoard b){
 	return make_pair(b.get_allowed_ttt_board(), move); 
 }
 
-int Ai::minvalue_9_board(NBoard b, int counter){
+
+int Ai::minvalue_9_board(NBoard b, int counter, int alpha, int beta){
 	counter += 1;
 	if (b.is_game_over()) return b.who_won();
 	else if(counter > 5){ return b.eval_heuristic_utility_value();}
@@ -153,13 +154,15 @@ int Ai::minvalue_9_board(NBoard b, int counter){
 		vector<int> possible_moves = b.actions();
 		int v = 1000;
 		for(int a = 0; a < possible_moves.size();a++){
-			v = min(v,maxvalue_9_board(hypothetical_9_board_move(b,possible_moves[a],-1),counter));
+			v = min(v,maxvalue_9_board(hypothetical_9_board_move(b,possible_moves[a],-1),counter, alpha, beta));
+			if(v <= alpha) return v;
+			beta = min(beta, v);
 		}
 		return v;
 	}
 }
 
-int Ai::maxvalue_9_board(NBoard b, int counter){
+int Ai::maxvalue_9_board(NBoard b, int counter, int alpha, int beta){
 	counter += 1; 
 	if (b.is_game_over()) return b.who_won();
 	else if (counter > 5) { return b.eval_heuristic_utility_value();}
@@ -167,7 +170,9 @@ int Ai::maxvalue_9_board(NBoard b, int counter){
 		vector<int> possible_moves = b.actions();
 		int v = -1000;
 		for(int a = 0; a < possible_moves.size(); a++){
-			v = max(v,minvalue_9_board(hypothetical_9_board_move(b,possible_moves[a],1),counter));
+			v = max(v,minvalue_9_board(hypothetical_9_board_move(b,possible_moves[a],1),counter, alpha, beta));
+			if(v >= beta) return v;
+			alpha = max(alpha, v);
 		}
 		return v;
 	}
@@ -364,7 +369,7 @@ void play_game(){
 				break;
 
 			start = clock();
-			
+
 			comp.make_9_board_move(b);
 
 			time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
