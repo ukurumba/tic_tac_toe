@@ -103,11 +103,7 @@ TEST_CASE("Testing max/min methods")
 	REQUIRE(comp.min(7,3) == 3);
 }
 
-TEST_CASE("playing game")
-{
-	play_game();
-	REQUIRE(3==3);
-}
+
 
 TEST_CASE("Testing maxvalue/minvalue methods")
 {
@@ -192,3 +188,31 @@ TEST_CASE("Testing eval_utility_value heuristic method")
 	}
 	REQUIRE(b.eval_heuristic_utility_value() == 21);
 }
+
+TEST_CASE("Timing AI Make_Move method")
+{
+
+clock_t start;
+double time_elapsed;
+Ai comp;
+vector<NBoard> boards;
+vector<double> timings; 
+for (int i=0;i<10;i++){
+	boards.push_back(NBoard());
+	start = clock();
+	comp.make_9_board_move(boards[i]);
+	time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
+	timings.push_back(time_elapsed);
+}
+double avg_time=0;
+for(int i=0;i<10;i++){
+	avg_time+=timings[i];
+}
+cerr << "Average time per move: " << avg_time/10 << endl;
+REQUIRE(3 == 3); 
+}
+// TEST_CASE("playing game")
+// {
+// 	play_game();
+// 	REQUIRE(3==3);
+// }
