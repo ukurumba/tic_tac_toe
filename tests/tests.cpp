@@ -211,8 +211,8 @@ for(int i=0;i<10;i++){
 cerr << "Average time per move: " << avg_time/10 << endl;
 REQUIRE(3 == 3); 
 }
-// TEST_CASE("playing game")
-// {
-// 	play_game();
-// 	REQUIRE(3==3);
-// }
+TEST_CASE("playing game")
+{
+	play_game();
+	REQUIRE(3==3);
+}
