@@ -195,14 +195,15 @@ TEST_CASE("Timing AI Make_Move method")
 clock_t start;
 double time_elapsed;
 Ai comp;
-vector<Game> boards;
+vector<NBoard> boards;
 vector<double> timings; 
 for (int i=0;i<10;i++){
-	boards.push_back(Game());
+	boards.push_back(NBoard());
 	start = clock();
-	comp.make_move(boards[i]);
+	comp.make_9_board_move(boards[i]);
 	time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
 	timings.push_back(time_elapsed);
+	cout <<"Time elapsed: " << time_elapsed << endl; 
 }
 double avg_time=0;
 for(int i=0;i<10;i++){
@@ -211,6 +212,7 @@ for(int i=0;i<10;i++){
 cerr << "Average time per move: " << avg_time/10 << endl;
 REQUIRE(3 == 3); 
 }
+
 TEST_CASE("playing game")
 {
 	play_game(9);

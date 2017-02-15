@@ -563,7 +563,7 @@ void NBoard::print_board(){
 
 void NBoard::set_xo(char user_xo){
 	user_X_or_O = user_xo;
-	if(user_xo == 'X' || 'x'){
+	if(user_xo == 'X' || user_xo =='x'){
 		ai_X_or_O = 'o'; 
 	}
 	else ai_X_or_O = 'x';
