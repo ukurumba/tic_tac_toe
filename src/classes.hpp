@@ -31,6 +31,9 @@ class NBoard {
 	int turn; 
 	int allowed_ttt_board;
 	int most_recently_played_board;
+	char ai_X_or_O;
+	char user_X_or_O;
+
 
 public:
 	NBoard();
@@ -48,6 +51,9 @@ public:
 	int get_allowed_ttt_board();
 	vector<int> actions();
 	int eval_heuristic_utility_value();
+	void print_board(); 
+	void set_xo(char user_xo); 
+	char print_x_or_o(int val);
 };
 
 class User {
@@ -59,7 +65,9 @@ public:
 };
 
 class Ai{
+	int move_count;
 public:
+	Ai();
 	void make_move(Game& actual_game);
 	void make_9_board_move(NBoard& actual_game);
 	int minimax(Game g);
@@ -72,8 +80,10 @@ public:
 	int minvalue_9_board(NBoard b, int counter, int alpha, int beta); 
 	int max(int i, int j);
 	int min(int i, int j);
+	void add_to_move_count();
+	int depth_limit(); 
 };
 
 
 
-void play_game();
+void play_game(int type_of_game);

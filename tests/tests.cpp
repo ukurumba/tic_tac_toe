@@ -213,6 +213,15 @@ REQUIRE(3 == 3);
 }
 TEST_CASE("playing game")
 {
-	play_game();
+	play_game(9);
 	REQUIRE(3==3);
+}
+
+TEST_CASE("testing print_board_method"){
+	NBoard b;
+	b.set_xo('x');
+	b.change_board(1,1,1);
+	b.change_board(3,8,-1); 
+	b.print_board(); 
+
 }

@@ -103,6 +103,10 @@ void User::make_9_board_move(NBoard& n){
 	n.change_allowed_ttt_board(position - 1); 
 }
 
+Ai::Ai(){ move_count = 0;}
+
+void Ai::add_to_move_count(){ move_count += 1; }
+
 void Ai::make_move(Game& actual_game){
 	Game g(actual_game); //making copy of game to use in decision-making
 	int move = minimax(g);
@@ -120,11 +124,13 @@ void Ai::make_9_board_move(NBoard& actual_game){
 	actual_game.change_most_recently_played_board(actual_game.get_allowed_ttt_board());
 	actual_game.change_board(move.first, move.second, 1);
 	actual_game.change_allowed_ttt_board(move.second);
+	cerr << "The depth limit used in h-minimax is " << depth_limit() << endl; 
+	add_to_move_count();
 	cout <<  move.first + 1 << " " << move.second + 1 << endl; 
 }
 
 pair<int,int> Ai::minimax_h(NBoard b){ 
-	if (b.get_allowed_ttt_board() == -100) b.change_allowed_ttt_board(0); 
+	if (b.get_allowed_ttt_board() == -100) b.change_allowed_ttt_board(0);  //changes to top left board for simplicity's sake 
 	vector<int> possible_moves = b.actions(); //returns possible actions for a given 9 board.
 	int v = -100;
 	int move=0;
@@ -149,7 +155,7 @@ int Ai::minvalue_9_board(NBoard b, int counter, int alpha, int beta){
 	counter += 1;
 	if (b.is_game_over()) return b.who_won();
 
-	else if(counter > 7){ return b.eval_heuristic_utility_value();}
+	else if(counter > depth_limit()){ return b.eval_heuristic_utility_value();}
 	else{
 		vector<int> possible_moves = b.actions();
 		int v = 1000;
@@ -166,7 +172,7 @@ int Ai::maxvalue_9_board(NBoard b, int counter, int alpha, int beta){
 	counter += 1; 
 	if (b.is_game_over()) return b.who_won();
 
-	else if (counter > 7) { return b.eval_heuristic_utility_value();}
+	else if (counter > depth_limit()) { return b.eval_heuristic_utility_value();}
 
 	else{
 		vector<int> possible_moves = b.actions();
@@ -191,7 +197,7 @@ int Ai::maxvalue(Game g){ //returns maximum utility value possible from the give
 	if(g.is_game_over()) {return g.who_won(); }
 	else{
 		vector<int> possible_moves = g.actions();
-		int v = -5;
+		int v = -500;
 		for(int a=0; a <possible_moves.size();a++){
 			Game g2 = hypothetical_move(g,possible_moves[a]);
 			v = max(v,minvalue(g2)); 
@@ -205,7 +211,7 @@ int Ai::minvalue(Game g){
 	if(g.is_game_over()) return g.who_won();
 	else{
 	vector<int> possible_moves = g.actions();
-	int v = 5;
+	int v = 500;
 		for(int a=0; a < possible_moves.size();a++){
 			v = min(v,maxvalue(hypothetical_move(g,possible_moves[a])));
 		}
@@ -227,7 +233,7 @@ int Ai::min(int i, int j){
 }
 
 int Ai::minimax(Game g){
-	int v = -100;
+	int v = -500;
 	int move=0;
 	int util_val = 0;
 	vector<int>  possible_moves = g.actions();
@@ -244,7 +250,10 @@ int Ai::minimax(Game g){
 	return move; 
 }
 
-
+int Ai::depth_limit()
+{ 
+	return move_count/2 + 6; 
+}
 
 
 
@@ -314,7 +323,8 @@ two -1's and a 0. It then returns a pair of booleans corresponding to the truth 
 
 
 void play_game(int game_type){
-
+	while(true)
+{
 	//Timing AI move length
   	clock_t start;
 	double time_elapsed;
@@ -366,6 +376,7 @@ void play_game(int game_type){
 
 	  else if (winner ==0)
 	  	cerr << "It was a Draw!"<< endl;
+
 	}
 	  
 	//Play 9-board
@@ -373,9 +384,10 @@ void play_game(int game_type){
 		User user1;
 		Ai comp;
 		NBoard b;
+		b.set_xo(x_or_o);
 		while (! b.is_game_over()){
 			if(x_or_o == 'X' | x_or_o == 'x'){
-		
+			b.print_board();
 			user1.make_9_board_move(b);
 				if(b.is_game_over())
 					break;
@@ -397,7 +409,7 @@ void play_game(int game_type){
 
 	      	if(b.is_game_over())
 					break;
-
+			b.print_board(); 
 			user1.make_9_board_move(b);	
 			}
 		}
@@ -409,7 +421,9 @@ void play_game(int game_type){
 			cerr << "The computer Wins!" << endl;
 		else if (winner == 0)
 			cerr << "It was a Draw!" << endl; 
+		b.print_board();
 	}
+}
 	
 }
 
@@ -506,4 +520,51 @@ int NBoard::eval_heuristic_utility_value(){
 vector<int> NBoard::actions(){
 	int ttt_board = allowed_ttt_board;
 	return board[ttt_board].actions();
+}
+
+
+char NBoard::print_x_or_o(int i){
+	if (i == 1){
+		return ai_X_or_O;		
+	}
+	else if (i==-1){
+		return user_X_or_O;
+	}
+	else
+		return '_';
+}
+void NBoard::print_board(){
+	for(int k = 0; k < 7; k+= 3){
+		for(int i =k;i<k+3;i++){
+			for(int j=0;j<3;j++) {
+				cerr << print_x_or_o(board[i].board[j]) << " ";
+			}
+			cerr << "     ";
+		}
+			cerr << endl; 
+
+		for(int i = k; i <k+3; i ++){
+			for(int j=3;j<6;j++) {
+				cerr << print_x_or_o(board[i].board[j]) << " ";
+			}
+			cerr << "     " ;
+		} cerr << endl; 
+
+		for(int i =k; i < k+3; i++){
+			for(int j=6;j<9;j++) {
+				cerr << print_x_or_o(board[i].board[j]) << " ";
+			}
+			cerr << "     " ;
+		}
+			cerr << endl << endl << endl; 
+	}
+
+}
+
+void NBoard::set_xo(char user_xo){
+	user_X_or_O = user_xo;
+	if(user_xo == 'X' || 'x'){
+		ai_X_or_O = 'o'; 
+	}
+	else ai_X_or_O = 'x';
 }
