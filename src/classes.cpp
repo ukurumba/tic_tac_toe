@@ -252,7 +252,7 @@ int Ai::minimax(Game g){
 
 int Ai::depth_limit()
 { 
-	return move_count/2 + 6; 
+	return move_count/3 + 6; 
 }
 
 
