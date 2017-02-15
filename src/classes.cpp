@@ -27,7 +27,7 @@ void Game::change_turn()
 
 void Game::view_board(){
 for(int i=0;i<7;){
-	cout << board[i]<<board[i+1]<<board[i+2]<<endl;
+	cerr << board[i]<<board[i+1]<<board[i+2]<<endl;
 	i+=3;
 }
 }
@@ -83,7 +83,6 @@ void User::make_move(Game& current_game){
 void User::make_9_board_move(NBoard& n){
 	int board, position;
 	cin >> board >> position;
-	cout << "Allowed board: " << n.get_allowed_ttt_board() << endl; 
 	while(n.is_position_taken(board-1,position-1) || !n.is_valid_move(board-1,position-1)){
 		if(n.is_position_taken(board-1,position-1)){
 		cerr << "Error: Player/AI has already played at selected position. Please select a valid move." << endl;
@@ -121,7 +120,7 @@ void Ai::make_9_board_move(NBoard& actual_game){
 	actual_game.change_most_recently_played_board(actual_game.get_allowed_ttt_board());
 	actual_game.change_board(move.first, move.second, 1);
 	actual_game.change_allowed_ttt_board(move.second);
-	cout << "Board: " << move.first + 1 << "Position: " << move.second + 1 << endl; 
+	cout <<  move.first + 1 << " " << move.second + 1 << endl; 
 }
 
 pair<int,int> Ai::minimax_h(NBoard b){ 
@@ -149,7 +148,7 @@ pair<int,int> Ai::minimax_h(NBoard b){
 int Ai::minvalue_9_board(NBoard b, int counter, int alpha, int beta){
 	counter += 1;
 	if (b.is_game_over()) return b.who_won();
-	else if(counter > 3){ return b.eval_heuristic_utility_value();}
+	else if(counter > 10){ return b.eval_heuristic_utility_value();}
 	else{
 		vector<int> possible_moves = b.actions();
 		int v = 1000;
@@ -165,7 +164,7 @@ int Ai::minvalue_9_board(NBoard b, int counter, int alpha, int beta){
 int Ai::maxvalue_9_board(NBoard b, int counter, int alpha, int beta){
 	counter += 1; 
 	if (b.is_game_over()) return b.who_won();
-	else if (counter > 3) { return b.eval_heuristic_utility_value();}
+	else if (counter > 10) { return b.eval_heuristic_utility_value();}
 	else{
 		vector<int> possible_moves = b.actions();
 		int v = -1000;
@@ -311,9 +310,7 @@ two -1's and a 0. It then returns a pair of booleans corresponding to the truth 
 }
 
 
-void play_game(){
-
-  // User user1;
+void play_game(int game_type){
 
 	//Timing AI move length
   	clock_t start;
@@ -324,51 +321,52 @@ void play_game(){
 	 // int first_mover = who_is_first();
 	  cerr << "Would you like to play X or O?" << endl;
 	  char x_or_o;
-	  cin >> x_or_o; 
-	//   while (! new_game.is_game_over()){
-	//     // if (first_mover == 1){
-	//   	if (x_or_o == 'x' || 'X')
-	//   	{
-	//       user1.make_move(new_game);
-	//       if(new_game.is_game_over())
-	//       	break;
+	  cin >> x_or_o;
 
-	//       start = clock();
-	//       comp.make_move(new_game);
-	//       time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
-	//       cerr << "The AI took " << time_elapsed << "s to make a move" << endl;
-	//   	}
-	//   	else 
+	  //play basic tic-tac-toe 
+	  if(game_type == 0){
+	  	Game new_game;
+	  	Ai comp;
+	  	User user1;
+	  	while (! new_game.is_game_over()){
+	    // if (first_mover == 1){
+	  	if (x_or_o == 'x' || 'X')
+	  	{
+	      user1.make_move(new_game);
+	      if(new_game.is_game_over())
+	      	break;
+	      comp.make_move(new_game);
+	  	}
+	  	else 
 
-	//  	{
-	    
-	// 		start = clock();
-	// 		comp.make_move(new_game);
-	// 		time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
-	// 		cerr << "The AI took " << time_elapsed << "s to make a move" << endl;	
-	// 		if(new_game.is_game_over())
-	// 		      	break;
-	// 		else user1.make_move(new_game);
+	 	{
+			comp.make_move(new_game);
 
-	//  	}
+			if(new_game.is_game_over())
+			      	break;
+			else user1.make_move(new_game);
 
-	//   }
+	 	}
+
+	  }
 	 
-	//  int winner = new_game.who_won();
+	 int winner = new_game.who_won();
 
-	//   if (winner == -1)
-	//   {
+	  if (winner == -1)
+	  {
 
-	//   	cerr << "The Player Wins!"<<endl;
+	  	cerr << "The Player Wins!"<<endl;
 	  	
-	//   }
-	//   else if (winner == 1)
-	//   	cerr << "The computer wins!" << endl;
+	  }
+	  else if (winner == 1)
+	  	cerr << "The computer wins!" << endl;
 
-	//   else if (winner ==0)
-	//   	cerr << "It was a Draw!"<< endl;
-	// }
-
+	  else if (winner ==0)
+	  	cerr << "It was a Draw!"<< endl;
+	}
+	  
+	//Play 9-board
+	else{
 		User user1;
 		Ai comp;
 		NBoard b;
@@ -408,6 +406,7 @@ void play_game(){
 			cerr << "The computer Wins!" << endl;
 		else if (winner == 0)
 			cerr << "It was a Draw!" << endl; 
+	}
 	
 }
 
