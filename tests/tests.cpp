@@ -195,12 +195,12 @@ TEST_CASE("Timing AI Make_Move method")
 clock_t start;
 double time_elapsed;
 Ai comp;
-vector<NBoard> boards;
+vector<Game> boards;
 vector<double> timings; 
 for (int i=0;i<10;i++){
-	boards.push_back(NBoard());
+	boards.push_back(Game());
 	start = clock();
-	comp.make_9_board_move(boards[i]);
+	comp.make_move(boards[i]);
 	time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
 	timings.push_back(time_elapsed);
 }

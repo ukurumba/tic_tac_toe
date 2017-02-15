@@ -149,7 +149,7 @@ pair<int,int> Ai::minimax_h(NBoard b){
 int Ai::minvalue_9_board(NBoard b, int counter, int alpha, int beta){
 	counter += 1;
 	if (b.is_game_over()) return b.who_won();
-	else if(counter > 3){ return b.eval_heuristic_utility_value();}
+	else if(counter > 7){ return b.eval_heuristic_utility_value();}
 	else{
 		vector<int> possible_moves = b.actions();
 		int v = 1000;
@@ -165,7 +165,7 @@ int Ai::minvalue_9_board(NBoard b, int counter, int alpha, int beta){
 int Ai::maxvalue_9_board(NBoard b, int counter, int alpha, int beta){
 	counter += 1; 
 	if (b.is_game_over()) return b.who_won();
-	else if (counter > 3) { return b.eval_heuristic_utility_value();}
+	else if (counter > ) { return b.eval_heuristic_utility_value();}
 	else{
 		vector<int> possible_moves = b.actions();
 		int v = -1000;
