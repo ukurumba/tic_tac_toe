@@ -149,7 +149,7 @@ pair<int,int> Ai::minimax_h(NBoard b){
 int Ai::minvalue_9_board(NBoard b, int counter, int alpha, int beta){
 	counter += 1;
 	if (b.is_game_over()) return b.who_won();
-	else if(counter > 5){ return b.eval_heuristic_utility_value();}
+	else if(counter > 3){ return b.eval_heuristic_utility_value();}
 	else{
 		vector<int> possible_moves = b.actions();
 		int v = 1000;
@@ -165,7 +165,7 @@ int Ai::minvalue_9_board(NBoard b, int counter, int alpha, int beta){
 int Ai::maxvalue_9_board(NBoard b, int counter, int alpha, int beta){
 	counter += 1; 
 	if (b.is_game_over()) return b.who_won();
-	else if (counter > 5) { return b.eval_heuristic_utility_value();}
+	else if (counter > 3) { return b.eval_heuristic_utility_value();}
 	else{
 		vector<int> possible_moves = b.actions();
 		int v = -1000;
@@ -313,60 +313,71 @@ two -1's and a 0. It then returns a pair of booleans corresponding to the truth 
 
 void play_game(){
 
-  User user1;
-  cerr << "Please input 0 for tic_tac_toe or 9 for 9 board tic tac toe." << endl; 
-  int input;
-  cin >> input;
+  // User user1;
 
 	//Timing AI move length
   	clock_t start;
 	double time_elapsed;
-
-  if (input == 0){
-	Ai comp;
-	  Game new_game;
+	// Ai comp;
+	//   Game new_game;
 
 	 // int first_mover = who_is_first();
-	  while (! new_game.is_game_over()){
-	    // if (first_mover == 1){
-	      user1.make_move(new_game);
-	      if(new_game.is_game_over())
-	      	break;
+	  cerr << "Would you like to play X or O?" << endl;
+	  char x_or_o;
+	  cin >> x_or_o; 
+	//   while (! new_game.is_game_over()){
+	//     // if (first_mover == 1){
+	//   	if (x_or_o == 'x' || 'X')
+	//   	{
+	//       user1.make_move(new_game);
+	//       if(new_game.is_game_over())
+	//       	break;
 
-	      start = clock();
-	      comp.make_move(new_game);
-	      time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
-	      cerr << "The AI took " << time_elapsed << "s to make a move" << endl;
-	          // }
-	    // else {
-	    //   comp.make_move(new_game);
-	    //   user1.make_move(new_game);
-	    // }
-	  }
+	//       start = clock();
+	//       comp.make_move(new_game);
+	//       time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
+	//       cerr << "The AI took " << time_elapsed << "s to make a move" << endl;
+	//   	}
+	//   	else 
+
+	//  	{
+	    
+	// 		start = clock();
+	// 		comp.make_move(new_game);
+	// 		time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
+	// 		cerr << "The AI took " << time_elapsed << "s to make a move" << endl;	
+	// 		if(new_game.is_game_over())
+	// 		      	break;
+	// 		else user1.make_move(new_game);
+
+	//  	}
+
+	//   }
 	 
-	 int winner = new_game.who_won();
+	//  int winner = new_game.who_won();
 
-	  if (winner == -1)
-	  {
+	//   if (winner == -1)
+	//   {
 
-	  	cerr << "The Player Wins!"<<endl;
+	//   	cerr << "The Player Wins!"<<endl;
 	  	
-	  }
-	  else if (winner == 1)
-	  	cerr << "The computer wins!" << endl;
+	//   }
+	//   else if (winner == 1)
+	//   	cerr << "The computer wins!" << endl;
 
-	  else if (winner ==0)
-	  	cerr << "It was a Draw!"<< endl;
-	}
+	//   else if (winner ==0)
+	//   	cerr << "It was a Draw!"<< endl;
+	// }
 
-	else if (input == 9){
 		User user1;
 		Ai comp;
 		NBoard b;
 		while (! b.is_game_over()){
+			if(x_or_o == 'X' | x_or_o == 'x'){
+		
 			user1.make_9_board_move(b);
-			if(b.is_game_over())
-				break;
+				if(b.is_game_over())
+					break;
 
 			start = clock();
 
@@ -374,6 +385,20 @@ void play_game(){
 
 			time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
 	      	cerr << "The AI took " << time_elapsed << "s to make a move" << endl;
+			}
+			else {
+				start = clock();
+
+			comp.make_9_board_move(b);
+
+			time_elapsed = (clock() - start) / (double) CLOCKS_PER_SEC;
+	      	cerr << "The AI took " << time_elapsed << "s to make a move" << endl;
+
+	      	if(b.is_game_over())
+					break;
+
+			user1.make_9_board_move(b);	
+			}
 		}
 
 		int winner = b.who_won();
@@ -383,7 +408,7 @@ void play_game(){
 			cerr << "The computer Wins!" << endl;
 		else if (winner == 0)
 			cerr << "It was a Draw!" << endl; 
-	}
+	
 }
 
 
